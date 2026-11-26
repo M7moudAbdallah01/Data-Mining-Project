@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import joblib
 
 from pathlib import Path
 from sklearn.model_selection import train_test_split
@@ -11,9 +10,6 @@ from sklearn.metrics import mean_squared_error, r2_score
 
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "Data"
-MODELS_DIR = BASE_DIR / "Models"
-
-MODELS_DIR.mkdir(exist_ok=True)
 
 DATA_PATH = DATA_DIR / "train_preprocessed.csv"
 
@@ -91,48 +87,21 @@ def main():
     print("\nModel Comparison:")
     print(results_df.to_string(index=False))
 
+    # Save comparison results
     results_df.to_csv(
-        MODELS_DIR / "validation_results.csv",
+        BASE_DIR / "validation_results.csv",
         index=False
     )
 
-    # Select the best model and weight setting
+    # Select the best model
     best = results_df.iloc[0]
 
-    best_name = best["Model"]
-    best_weights = bool(best["Weights"])
-
-    print("\nBest Model:", best_name)
-    print("Using Sample Weights:", best_weights)
+    print("\nBest Model:", best["Model"])
+    print("Using Sample Weights:", bool(best["Weights"]))
     print("Validation RMSE:", best["Val_RMSE"])
     print("Validation R2:", best["Val_R2"])
 
-    # Train the best model on all training data
-    final_model = get_models()[best_name]
-
-    final_model.fit(
-        X,
-        y,
-        sample_weight=weights if best_weights else None
-    )
-
-    # Save the best model
-    joblib.dump(
-        final_model,
-        MODELS_DIR / "best_model.joblib"
-    )
-
-    # Save model information
-    joblib.dump(
-        {
-            "best_name": best_name,
-            "use_weights": best_weights,
-            "features": X.columns.tolist()
-        },
-        MODELS_DIR / "model_info.joblib"
-    )
-
-    print("\nBest model saved successfully!")
+    print("\nModel comparison completed successfully!")
 
 
 if __name__ == "__main__":
