@@ -7,7 +7,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 BASE_DIR = Path(__file__).resolve().parent
-DATA_PATH = BASE_DIR / "Data" / "melb_data(Uncleaned).csv"
+DATA_DIR = BASE_DIR / "Data"
+DATA_PATH = DATA_DIR / "melb_data(Uncleaned).csv"
 
 RANDOM_STATE = 42
 TARGET = "Price"
@@ -218,8 +219,8 @@ def main():
     test_output["Price_log"] = y_test
     test_output["Price"] = np.expm1(y_test)
 
-    train_output.to_csv("train_preprocessed.csv", index=False)
-    test_output.to_csv("test_preprocessed.csv", index=False)
+    train_output.to_csv(DATA_DIR / "train_preprocessed.csv", index=False)
+    test_output.to_csv(DATA_DIR / "test_preprocessed.csv", index=False)
 
     # ملف كامل: كل الصفوف بعد المعالجة بنفس ترتيبها
     # عمود Split بيوضح الصف تبع train ولا test
@@ -228,7 +229,7 @@ def main():
         train_output.assign(Split="train"),
         test_output.assign(sample_weight=1.0, Split="test")
     ]).sort_index()
-    full_output.to_csv("melb_preprocessed_full.csv", index=False)
+    full_output.to_csv(DATA_DIR / "melb_preprocessed_full.csv", index=False)
 
     # حفظ المعلومات اللازمة لتطبيق نفس المعالجة لاحقاً على بيانات جديدة
     preprocessing_info = {
@@ -242,7 +243,7 @@ def main():
         "selected_features": selected_features,
         "scaler": scaler
     }
-    joblib.dump(preprocessing_info, "preprocessing_info.joblib")
+    joblib.dump(preprocessing_info, DATA_DIR / "preprocessing_info.joblib")
 
     print("Missing after preprocessing:",
           int(X_train_scaled.isna().sum().sum() + X_test_scaled.isna().sum().sum()))
@@ -252,10 +253,10 @@ def main():
     print("Test shape:", X_test_scaled.shape)
     print("Selected features:", len(selected_features))
     print("Saved files:")
-    print("- train_preprocessed.csv")
-    print("- test_preprocessed.csv")
-    print("- preprocessing_info.joblib")
-    print("- melb_preprocessed_full.csv", full_output.shape)
+    print("- Data/train_preprocessed.csv")
+    print("- Data/test_preprocessed.csv")
+    print("- Data/preprocessing_info.joblib")
+    print("- Data/melb_preprocessed_full.csv", full_output.shape)
 
 
 if __name__ == "__main__":
